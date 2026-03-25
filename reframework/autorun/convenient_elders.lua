@@ -6,16 +6,16 @@ local initialized = false
 local config_path = "convenient_elders_config.json"
 
 local defaults = {
-  elderBasePopRate = 10,
-  elderEndBattleCount = 5,
-  overrideByLocation = true
+  elderBaseSpawnChance = 10,
+  elderDespawnBattleCount = 5,
+  forceSameAreaElder = true
 }
 
 local config = {
-  enabled = true,           -- Whether mod (features) should be enabled
-  elderBasePopRate = 10,    -- The base appearance rate of a calamitous elder dragon as percentage (0 - 100, default: 10)
-  elderEndBattleCount = 5,  -- How many battles until calamitous elder goes away (default: 5)
-  overrideByLocation = true -- Force elder spawns depending on the current stage/location/area (i.e., battles in Azuria should guarantee Namielle)
+  modEnabled = true,           -- Whether mod (features) should be enabled
+  elderBaseSpawnChance = 10,   -- The base appearance rate of a calamitous elder dragon as percentage (0 - 100, default: 10)
+  elderDespawnBattleCount = 5, -- How many battles until calamitous elder goes away (default: 5)
+  forceSameAreaElder = true    -- Force elder spawns depending on the current stage/location/area (i.e., battles in Azuria should guarantee Namielle)
 }
 
 --- Valid stage IDs for where calamitous elders can spawn;
@@ -48,18 +48,18 @@ end
 
 ---Handle mod enable/disable toggle
 ---@param enabled boolean
-local function handleEnableToggle(enabled)
+local function handleModEnableToggle(enabled)
   if not fieldElderUserData then
     log.error(logMsgStart .. "'app.StageManager._FieldElderCtrl._FieldElderParamUserData' is null; cannot set field values")
     return
   end
 
   if not enabled then
-    fieldElderUserData:set_field("BasePopRate", defaults.elderBasePopRate)
-    fieldElderUserData:set_field("ElderEndBattleCount", defaults.elderEndBattleCount)
+    fieldElderUserData:set_field("BasePopRate", defaults.elderBaseSpawnChance)
+    fieldElderUserData:set_field("ElderEndBattleCount", defaults.elderDespawnBattleCount)
   else
-    fieldElderUserData:set_field("BasePopRate", config.elderBasePopRate)
-    fieldElderUserData:set_field("ElderEndBattleCount", config.elderEndBattleCount)
+    fieldElderUserData:set_field("BasePopRate", config.elderBaseSpawnChance)
+    fieldElderUserData:set_field("ElderEndBattleCount", config.elderDespawnBattleCount)
   end
 end
 
@@ -102,8 +102,8 @@ local function init()
     return
   end
 
-  fieldElderUserData:set_field("BasePopRate", config.elderBasePopRate)
-  fieldElderUserData:set_field("ElderEndBattleCount", config.elderEndBattleCount)
+  fieldElderUserData:set_field("BasePopRate", config.elderBaseSpawnChance)
+  fieldElderUserData:set_field("ElderEndBattleCount", config.elderDespawnBattleCount)
 
   initialized = true
 end
@@ -141,7 +141,7 @@ sdk.hook(
   function(args)
     log.debug(logMsgStart .. "StageID_Fixed: " .. tostring(sdk.to_int64(args[3])))
 
-    if not config.enabled or not config.overrideByLocation then
+    if not config.modEnabled or not config.forceSameAreaElder then
       return sdk.PreHookResult.CALL_ORIGINAL
     end
 
@@ -188,40 +188,40 @@ end
 
 re.on_draw_ui(function()
   if imgui.tree_node("Convenient Elders") then
-    local modEnabledChanged, newModEnabled = imgui.checkbox("Enable mod?", config.enabled)
+    local modEnabledChanged, newModEnabled = imgui.checkbox("Enable mod?", config.modEnabled)
     if modEnabledChanged then
-      config.enabled = newModEnabled
-      handleEnableToggle(newModEnabled)
+      config.modEnabled = newModEnabled
+      handleModEnableToggle(newModEnabled)
       save_config()
     end
 
-    if config.enabled then
+    if config.modEnabled then
       pre_tooltip("Base chance of a calamitous elder appearing / spawning (n %%); 50 meaning 50 %%\nDefault: 10 (%%)")
       ---@diagnostic disable-next-line: missing-parameter
-      local elderBasePopRateChanged, newElderBasePopRate = imgui.slider_int("Base spawn rate (n %)", config.elderBasePopRate, 0, 100)
+      local elderBasePopRateChanged, newElderBasePopRate = imgui.slider_int("Base spawn rate (n %)", config.elderBaseSpawnChance, 0, 100)
       if elderBasePopRateChanged then
-        config.elderBasePopRate = newElderBasePopRate
+        config.elderBaseSpawnChance = newElderBasePopRate
         if fieldElderUserData then
-          fieldElderUserData:set_field("BasePopRate", config.elderBasePopRate)
+          fieldElderUserData:set_field("BasePopRate", config.elderBaseSpawnChance)
         end
         save_config()
       end
 
       pre_tooltip("How many battles to require until the calamitous elder despawns / retreats\nDefault: 5")
       ---@diagnostic disable-next-line: missing-parameter
-      local elderEndBattleCountChanged, newElderEndBattleCount = imgui.slider_int("Battle retreat count", config.elderEndBattleCount, 1, 10)
+      local elderEndBattleCountChanged, newElderEndBattleCount = imgui.slider_int("Battle retreat count", config.elderDespawnBattleCount, 1, 10)
       if elderEndBattleCountChanged then
-        config.elderEndBattleCount = newElderEndBattleCount
+        config.elderDespawnBattleCount = newElderEndBattleCount
         if fieldElderUserData then
-          fieldElderUserData:set_field("ElderEndBattleCount", config.elderEndBattleCount)
+          fieldElderUserData:set_field("ElderEndBattleCount", config.elderDespawnBattleCount)
         end
         save_config()
       end
 
       pre_tooltip("Forces the calamitous elder of the current area to spawn (i.e., Azuria elder in Azuria)")
-      local overrideByLocationChanged, newOverrideByLocation = imgui.checkbox("Force same area elder?", config.overrideByLocation)
+      local overrideByLocationChanged, newOverrideByLocation = imgui.checkbox("Force same area elder?", config.forceSameAreaElder)
       if overrideByLocationChanged then
-        config.overrideByLocation = newOverrideByLocation
+        config.forceSameAreaElder = newOverrideByLocation
         save_config()
       end
     end
