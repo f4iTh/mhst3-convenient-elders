@@ -1,1 +1,4 @@
 build/
+
+# just convenience scripts
+Makefile
