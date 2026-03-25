@@ -219,7 +219,7 @@ re.on_draw_ui(function()
       end
 
       pre_tooltip("Forces the calamitous elder of the current area to spawn (i.e., Azuria elder in Azuria)")
-      local overrideByLocationChanged, newOverrideByLocation = imgui.checkbox("Force current area elder dragon spawning?", config.overrideByLocation)
+      local overrideByLocationChanged, newOverrideByLocation = imgui.checkbox("Force same area elder?", config.overrideByLocation)
       if overrideByLocationChanged then
         config.overrideByLocation = newOverrideByLocation
         save_config()
