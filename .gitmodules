@@ -1,0 +1,3 @@
+[submodule "api/reframework-lua-ref"]
+	path = api/reframework-lua-ref
+	url = https://github.com/f4iTh/reframework-lua-ref.git
