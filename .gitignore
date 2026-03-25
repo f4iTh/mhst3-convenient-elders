@@ -1,4 +1,5 @@
 build/
+release/
 
 # just convenience scripts
 Makefile
