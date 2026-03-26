@@ -12,28 +12,28 @@ local defaults = {
 }
 
 local config = {
-  modEnabled = true,           -- Whether mod (features) should be enabled
-  elderBaseSpawnChance = 10,   -- The base appearance rate of a calamitous elder dragon as percentage (0 - 100, default: 10)
-  elderDespawnBattleCount = 5, -- How many battles until calamitous elder goes away (default: 5)
-  forceSameAreaElder = true    -- Force elder spawns depending on the current stage/location/area (i.e., battles in Azuria should guarantee Namielle)
+  modEnabled = true,            -- Whether mod (features) should be enabled
+  elderBaseSpawnChance = 10,    -- The base appearance rate of a calamitous elder dragon as percentage (0 - 100, default: 10)
+  elderDespawnBattleCount = 5,  -- How many battles until calamitous elder goes away (default: 5)
+  forceSameAreaElder = true     -- Force elder spawns depending on the current stage/location/area (i.e., battles in Azuria should guarantee Namielle)
 }
 
 --- Valid stage IDs for where calamitous elders can spawn;
 --- Could probably also check with `app.cSaveDataHelper_Field.isOpenMap(app.StageDef.StageID_Fixed)`
 local validStageIDs = {
-  1769129856, -- Azuria
-  884165440,  -- Canalta Timberland
-  1834912896, -- Tarkuan
-  1491992832  -- Serathis
+  1769129856,  -- Azuria
+  884165440,   -- Canalta Timberland
+  1834912896,  -- Tarkuan
+  1491992832   -- Serathis
 }
 
-local stageIDNone = 4117922480 -- If no elders, set it to this value (app.StageDef.StageID_Fixed.None / -177044816 if properly converted to int32)
+local stageIDNone = 4117922480  -- If no elders, set it to this value (app.StageDef.StageID_Fixed.None / -177044816 if properly converted to int32)
 
 local stageManager = nil
 local fieldElderController = nil
 local fieldElderUserData = nil
 
---- Sets config values if they exist, otherwise uses default values
+---Sets config values if they exist, otherwise uses default values
 local function load_config()
   local c = json.load_file(config_path)
   if c ~= nil then
@@ -41,7 +41,7 @@ local function load_config()
   end
 end
 
---- Saves current config
+---Saves current config
 local function save_config()
   json.dump_file(config_path, config)
 end
@@ -63,7 +63,7 @@ local function handleModEnableToggle(enabled)
   end
 end
 
---- Checks a table if specified value exists
+---Checks a table if specified value exists
 ---@param t table
 ---@param val string|number
 local function has_value(t, val)
