@@ -1,0 +1,14 @@
+[*.lua]
+indent_style = space
+indent_size = 2
+tab_width = 4
+quote_style = double
+
+continuation_indent = 2
+
+max_line_length = 999
+end_of_line = auto
+
+space_before_inline_comment = 2
+# space_after_comment_dash = false
+space_around_math_operator.exponent = false
