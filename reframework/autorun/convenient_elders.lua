@@ -139,7 +139,7 @@ sdk.hook(
 sdk.hook(
   sdk.find_type_definition("app.cSaveDataHelper_Field"):get_method("setPopElderStageId(app.StageDef.StageID_Fixed)"),
   function(args)
-    log.debug(logMsgStart .. "StageID_Fixed: " .. tostring(sdk.to_int64(args[3])))
+    log.debug(logMsgStart .. "setPopElderStageId args[3]: " .. tostring(sdk.to_int64(args[3])))
 
     if not config.modEnabled or not config.forceSameAreaElder then
       return sdk.PreHookResult.CALL_ORIGINAL
@@ -154,24 +154,29 @@ sdk.hook(
       return sdk.PreHookResult.CALL_ORIGINAL
     end
 
-    -- get current stage id
-    local currentStage = stageManager:call("get_CurrentStageData()")
-    if not currentStage then
-      return sdk.PreHookResult.CALL_ORIGINAL
+    -- get stage id
+    local stage = stageManager:call("get_CurrentStageData()")
+    local stageId = stage:call("get_ID()")
+    log.debug(logMsgStart .. "current StageID_Fixed: " .. tostring(stageId or ""))
+
+    if not stageId or not has_value(validStageIDs, stageId) then  -- current stage invalid (e.g., currently in egg nest); try previous stage
+      stage = stageManager:call("get_PrevStageData()")
+      stageId = stage:call("get_ID()")
+      log.debug(logMsgStart .. "previous StageID_Fixed: " .. tostring(stageId or ""))
     end
 
-    local currentStageId = currentStage:call("get_ID()")
-    if not currentStageId then
+    if not stageId then
+      log.debug(logMsgStart .. "could not get valid StageID_Fixed; not overriding elder spawn")
       return sdk.PreHookResult.CALL_ORIGINAL
     end
 
     -- overwrite stage id param if valid
-    if has_value(validStageIDs, currentStageId) then
-      log.debug(logMsgStart .. "overriding StageID_Fixed to: " .. tostring(currentStageId))
-      args[3] = sdk.to_ptr(currentStageId)
+    if has_value(validStageIDs, stageId) then
+      log.debug(logMsgStart .. "overriding StageID_Fixed to: " .. tostring(stageId))
+      args[3] = sdk.to_ptr(stageId)
     end
 
-    log.debug(logMsgStart .. "new StageID_Fixed: " .. sdk.to_int64(args[3]))
+    -- log.debug(logMsgStart .. "new StageID_Fixed: " .. sdk.to_int64(args[3]))
 
     return sdk.PreHookResult.CALL_ORIGINAL
   end,
